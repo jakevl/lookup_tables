@@ -160,17 +160,19 @@ head(example_data)
 updateUnitConvTable(data_crit, translation_wb, sheetname = "unitConvTable")
 
 
-
-
-#14. Pre-assessment data prep
+#14. Pre-assessment data prep (still some to do, but operational https://trello.com/c/OkvqshfE/3-final-data-cleanup)
 load("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\ready_for_prep.RData")
 prepped_data=dataPrep(data_crit, translation_wb, unit_sheetname = "unitConvTable", startRow = 1)
-
-
-#15. Calculate toxic criteria (could incorporate into data prep - need to fill in hardness & temperature CF values in translation & standards workbooks.
+attach(prepped_data)
 
 
 #16. Count exceedances
+head(conventionals)
+conventionals$CriterionType[is.na(conventionals$CriterionType)]="max"
+conv_exc=countExceedances(conventionals)
+conv_exc[conv_exc$IR_MLID=="UTAHDWQ_WQX-4960740",]
+
+
 
 
 
