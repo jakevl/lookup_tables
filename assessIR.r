@@ -3,7 +3,7 @@
 #devtools::document("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\irTools")
 
 #01. Install UT autoIR package - ignore warnings re: namespace issues - will fix (eventually)
-devtools::install_github("ut-ir-tools/irTools")
+devtools::install_github("ut-ir-tools/irTools"#, ref="IR-ML_Name")
 library(irTools)
 
 
@@ -20,9 +20,9 @@ downloadWQP(outfile_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_p
 autoValidateWQPsites(
 	sites_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\sites161001-180930.csv",
 	#sites_file="P:\\WQ\\Integrated Report\\Automation_Development\\elise\\demo\\01raw_data\\sites101001-180930_EH.csv",
-	master_site_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\02site_validation\\wqp_master_site_file.csv",
+	master_site_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\wqp_master_site_file.csv",
 	polygon_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\02site_validation\\polygons",
-	outfile_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\02site_validation",
+	outfile_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables",
 	site_type_keep=c(
 		"Lake, Reservoir, Impoundment",
 		"Stream",
@@ -42,10 +42,10 @@ autoValidateWQPsites(
 
 ##04. Site review application
 runSiteValApp(
-	master_site_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\02site_validation\\wqp_master_site_file.csv",
+	master_site_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\wqp_master_site_file.csv",
 	polygon_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\02site_validation\\polygons",
-	edit_log_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\02site_validation\\edit_logs",
-	reasons_flat_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\02site_validation\\rev_rej_reasons.csv")
+	edit_log_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\lookup_tables\\edit_logs",
+	reasons_flat_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\rev_rej_reasons.csv")
 
 
 
@@ -166,11 +166,32 @@ prepped_data=dataPrep(data_crit, translation_wb, unit_sheetname = "unitConvTable
 attach(prepped_data)
 
 
-#16. Count exceedances
+#16. Assess conventionals:
+#16a. Count exceedances
 head(conventionals)
-conventionals$CriterionType[is.na(conventionals$CriterionType)]="max"
+conventionals$CriterionType[is.na(conventionals$CriterionType)]="max" #Note this was missing for some standards in the table when I built ready_for_prep.RData. Error built into countExceedances to check for NAs in this column.
 conv_exc=countExceedances(conventionals)
 conv_exc[conv_exc$IR_MLID=="UTAHDWQ_WQX-4960740",]
+conv_exc[conv_exc$IR_MLID=="UTAHDWQ_WQX-5994740",]
+
+#16b. Assess exceedances (conventionals)
+conv_assessed=assessExcCounts(conv_exc, min_n=10, max_exc_pct=10, max_exc_count_id=1)
+table(conv_assessed$IR_Cat)
+head(conv_assessed[conv_assessed$IR_Cat=="NS",])
+conv_assessed[conv_assessed$IR_MLID=="UTAHDWQ_WQX-4960740",]
+conv_assessed[conv_assessed$IR_MLID=="UTAHDWQ_WQX-5994740",]
+
+#17. Assess toxics (non-calculated criteria for now)
+#17a. Count exceedances
+head(toxics)
+toxics_exc=countExceedances(toxics)
+head(toxics_exc)
+
+#17b. Assess exceedances (toxics)
+toxics_assessed=assessExcCounts(toxics_exc, min_n=4, max_exc_count=1, max_exc_count_id=0)
+table(toxics_assessed$IR_Cat)
+head(toxics_assessed[toxics_assessed$IR_Cat=="NS",])
+
 
 
 
