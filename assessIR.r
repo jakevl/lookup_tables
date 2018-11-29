@@ -3,9 +3,9 @@
 #devtools::document("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\irTools")
 
 #01. Install UT autoIR package - ignore warnings re: namespace issues - will fix (eventually)
-devtools::install_github("ut-ir-tools/irTools"#, ref="IR-ML_Name")
+devtools::install_github("ut-ir-tools/irTools")#, ref="IR-ML_Name")
 library(irTools)
-
+devtools::document("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\irTools")
 
 ##02. Retrieve raw data from WQP (narrowresult query can be split apart then bound back together for big data pulls - remove narrowresult from retrieve argument in pullWQP()
 ?downloadWQP
@@ -161,10 +161,12 @@ updateUnitConvTable(data_crit, translation_wb, sheetname = "unitConvTable")
 
 
 #14. Pre-assessment data prep (still some to do, but operational https://trello.com/c/OkvqshfE/3-final-data-cleanup)
+rm(list=ls(all=TRUE))
 load("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\ready_for_prep.RData")
 prepped_data=dataPrep(data_crit, translation_wb, unit_sheetname = "unitConvTable", startRow = 1)
 attach(prepped_data)
-
+levels(conventionals$AsmntAggFun)=append(levels(conventionals$AsmntAggFun),"mean")
+conventionals=within(conventionals,{AsmntAggFun[AsmntAggFun=="Average"]="mean"}) #note - this was initially "Average" in the table, updated to 'mean'
 
 #16. Assess conventionals:
 #16a. Count exceedances
@@ -172,7 +174,6 @@ head(conventionals)
 conventionals$CriterionType[is.na(conventionals$CriterionType)]="max" #Note this was missing for some standards in the table when I built ready_for_prep.RData. Error built into countExceedances to check for NAs in this column.
 conv_exc=countExceedances(conventionals)
 conv_exc[conv_exc$IR_MLID=="UTAHDWQ_WQX-4960740",]
-conv_exc[conv_exc$IR_MLID=="UTAHDWQ_WQX-5994740",]
 
 #16b. Assess exceedances (conventionals)
 conv_assessed=assessExcCounts(conv_exc, min_n=10, max_exc_pct=10, max_exc_count_id=1)
