@@ -74,8 +74,7 @@ updateDetCondLimTables(results=merged_results, detquantlim=detquantlim, translat
 
 #06. Fill masked/censored values in results 
 #?fillMaskedValues
-merged_results_filled=fillMaskedValues(results=merged_results, detquantlim=detquantlim, translation_wb=translation_wb,
-										sheetname="detLimitTypeTable", startRow=3, lql_fac=0.5, uql_fac=1)
+merged_results_filled=fillMaskedValues(results=merged_results, detquantlim=detquantlim, translation_wb=translation_wb,detsheetname="detLimitTypeTable", unitsheetname="unitConvTable",detstartRow=3, unitstartRow=1, unitstartCol=1, lql_fac=0.5, uql_fac=1)
 dim(merged_results_filled)
 	
 	
@@ -90,16 +89,16 @@ updateLabActMediaTables(merged_results_filled, translation_wb=translation_wb, la
 #?applyScreenTable
 
 merged_results_filled=applyScreenTable(merged_results_filled,translation_wb=translation_wb,
-								sheetname="detConditionTable",startRow=3, flag_col_name="IR_DetCond_FLAG", com_col_name="IR_DetCond_COMMENT", na_err=T)
+								sheetname="detConditionTable",startRow=3, flag_col_name="IR_DetCond_FLAG", com_col_name="IR_DetCond_COMMENT", na_dup_err=T)
 
 merged_results_filled=applyScreenTable(merged_results_filled,translation_wb=translation_wb,
-								sheetname="labNameActivityTable",startRow=2,flag_col_name="IR_LabAct_FLAG", com_col_name="IR_LabAct_COMMENT", na_err=T)
+								sheetname="labNameActivityTable",startRow=2,flag_col_name="IR_LabAct_FLAG", com_col_name="IR_LabAct_COMMENT", na_dup_err=T)
 
 merged_results_filled=applyScreenTable(merged_results_filled,translation_wb=translation_wb,
-								sheetname="activityMediaNameTable",startRow=1, flag_col_name="IR_Media_FLAG", com_col_name="IR_Media_COMMENT", na_err=T)
+								sheetname="activityMediaNameTable",startRow=1, flag_col_name="IR_Media_FLAG", com_col_name="IR_Media_COMMENT", na_dup_err=T)
 
 merged_results_filled=applyScreenTable(merged_results_filled,translation_wb=translation_wb,
-								sheetname="masterSiteTable",startRow=1, flag_col_name="IR_Site_FLAG", com_col_name="IR_Site_COMMENT", na_err=T)
+								sheetname="masterSiteTable",startRow=1, flag_col_name="IR_Site_FLAG", com_col_name="IR_Site_COMMENT", na_dup_err=T)
 head(merged_results_filled)
 dim(merged_results_filled)
 
@@ -124,7 +123,7 @@ updateParamTrans(data=mrf_sub, detquantlim=detquantlim,  translation_wb=translat
 
 mrf_sub=applyScreenTable(mrf_sub,translation_wb=translation_wb,
 									sheetname="paramTransTable",startRow=4,flag_col_name="IR_Parameter_FLAG",com_col_name="IR_Parameter_COMMENT",
-									na_err=F)
+									na_dup_err=F)
 	#Set na_err=F to proceed with partially completed table. applyScreenTable() exits w/ error if IR_FLAG is not fully filled in when na_err=T (default). If subsetting based on a flag column w/ NAs, these must be dealth with via which() or by explicitly excluding NA rows
 table(mrf_sub$IR_Parameter_FLAG)
 dim(mrf_sub)
