@@ -5,7 +5,7 @@
 #01. Install UT autoIR package - ignore warnings re: namespace issues - will fix (eventually)
 devtools::install_github("ut-ir-tools/irTools")#, ref="IR-ML_Name")
 library(irTools)
-devtools::document("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\irTools")
+#devtools::document("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\irTools")
 
 ##02. Retrieve raw data from WQP (narrowresult query can be split apart then bound back together for big data pulls - remove narrowresult from retrieve argument in pullWQP()
 ?downloadWQP
@@ -68,7 +68,7 @@ detquantlim=read.csv("01raw_data\\detquantlim141001-160930.csv")
 	
 #05. Update detection condition / limit name tables
 #?updateDetCondLimTables
-translation_wb="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\03translation\\ir_translation_workbook.xlsx"
+translation_wb="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\ir_translation_workbook.xlsx"
 updateDetCondLimTables(results=merged_results, detquantlim=detquantlim, translation_wb=translation_wb)
 
 
@@ -116,18 +116,38 @@ table(mrf_sub$IR_LabAct_FLAG)
 table(mrf_sub$IR_Media_FLAG)
 table(mrf_sub$IR_Site_FLAG)
 
+#table(mrf_sub$CharacteristicName)
+
 
 #10. Update & apply paramTransTable (generate from subsetted data)
 #?updateParamTrans
 updateParamTrans(data=mrf_sub, detquantlim=detquantlim,  translation_wb=translation_wb, paramFractionGroup_startCol = 2)
 
+
+mrf_sub_bk=mrf_sub
+#table(mrf_sub_bk$CharacteristicName)
+
 mrf_sub=applyScreenTable(mrf_sub,translation_wb=translation_wb,
 									sheetname="paramTransTable",startRow=4,flag_col_name="IR_Parameter_FLAG",com_col_name="IR_Parameter_COMMENT",
 									na_dup_err=F)
-	#Set na_err=F to proceed with partially completed table. applyScreenTable() exits w/ error if IR_FLAG is not fully filled in when na_err=T (default). If subsetting based on a flag column w/ NAs, these must be dealth with via which() or by explicitly excluding NA rows
+	#Set na_dup_err=F to proceed with partially completed table. applyScreenTable() exits w/ error if IR_FLAG is not fully filled in when na_err=T (default). If subsetting based on a flag column w/ NAs, these must be dealth with via which() or by explicitly excluding NA rows
+
 table(mrf_sub$IR_Parameter_FLAG)
 dim(mrf_sub)
 mrf_sub=mrf_sub[mrf_sub$IR_Parameter_FLAG=="ACCEPT" & !is.na(mrf_sub$IR_Parameter_FLAG),]	#IR_FLAG column in parameter table needs to be filled in before applying/subsetting
+
+table(mrf_sub$CharacteristicName)[table(mrf_sub$CharacteristicName)>0]
+table(mrf_sub$R3172ParameterName)[table(mrf_sub$R3172ParameterName)>0]
+
+
+
+
+
+
+
+
+
+
 #head(mrf_sub)
 dim(mrf_sub)
 test=mrf_sub[which(mrf_sub$R3172ParameterName=="Boron"),]
