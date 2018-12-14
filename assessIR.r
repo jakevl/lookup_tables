@@ -3,7 +3,7 @@
 #devtools::document("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\irTools")
 
 #01. Install UT autoIR package - ignore warnings re: namespace issues - will fix (eventually)
-devtools::install_github("ut-ir-tools/irTools")#, ref="IR-ML_Name")
+devtools::install_github("ut-ir-tools/irTools")
 library(irTools)
 #devtools::document("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\irTools")
 
@@ -139,20 +139,8 @@ mrf_sub=mrf_sub[mrf_sub$IR_Parameter_FLAG=="ACCEPT" & !is.na(mrf_sub$IR_Paramete
 table(mrf_sub$CharacteristicName)[table(mrf_sub$CharacteristicName)>0]
 table(mrf_sub$R3172ParameterName)[table(mrf_sub$R3172ParameterName)>0]
 
-
-
-
-
-
-
-
-
-
 #head(mrf_sub)
 dim(mrf_sub)
-test=mrf_sub[which(mrf_sub$R3172ParameterName=="Boron"),]
-table(test$IR_Fraction)
-table(test[test$IR_Fraction=="TOTAL","OrganizationFormalName"])
 
 #11. Update & apply activityCommentTable (Not sure if we're going to fully screen comments yet, but can be updated/applied same as above, recommend subsetting based on parameter screens prior to updating)
 #?updateCommentTable
@@ -160,17 +148,14 @@ table(test[test$IR_Fraction=="TOTAL","OrganizationFormalName"])
 	
 #12. Assign criteria	
 #?assignCriteria
-data_crit=assignCriteria(mrf_sub, crit_wb="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\04standards\\IR_uses_standards.xlsx",
-								  crit_sheetname="R317214DomesticRecAgCriteria_JV", ss_sheetname="R317214SSCriteria_JV", crit_startRow=1, ss_startRow=1)
+data_crit=assignCriteria(mrf_sub, crit_wb="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\IR_uses_standards.xlsx",
+								  crit_sheetname="R317214DomesticRecAgCriteria_JV", ss_sheetname="R317214SSCriteria_JV", crit_startRow=1, ss_startRow=1, rm_nocrit=FALSE)
 any(is.na(data_crit$IR_DetCond_FLAG))
 data_crit=data_crit[data_crit$IR_DetCond_FLAG=="ACCEPT",]
 
-example_data=data_crit[data_crit$IR_DetCond!="NRV" & !is.na(data_crit$NumericCriterion),c("IR_MLID","ASSESS_ID","AU_NAME","AU_Type","Water_Type","IR_Lat","IR_Long",
-				  "R317Descrp","ActivityIdentifier", "ActivityStartDate","R3172ParameterName","BeneficialUse","BEN_CLASS",
-				  "ResultMeasureValue","ResultMeasure.MeasureUnitCode","IR_Value","IR_Unit","IR_DetCond","ResultSampleFractionText","IR_Fraction","TargetFraction",
-				  "IR_ActivityType","TargetActivityType","AssessmentType","CriterionLabel","CriterionType","DailyAggFun","AsmntAggPeriod","AsmntAggPeriodUnit","AsmntAggFun","NumericCriterion","CriterionUnits",
-				  "IR_LowerLimitValue","IR_LowerLimitUnit","IR_UpperLimitValue","IR_UpperLimitUnit","ss_R317Descrp","SSC_StartMon","SSC_EndMon","SSC_MLID","IR_Parameter_FLAG","IR_DetCond_FLAG","IR_LabAct_FLAG","IR_Media_FLAG","IR_Site_FLAG")]			  
-head(example_data)
+table(data_crit$CharacteristicName)[table(data_crit$CharacteristicName)>0]
+table(data_crit$R3172ParameterName)[table(data_crit$R3172ParameterName)>0]
+
 
 #write.csv(file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\example_data.csv",example_data, row.names=F)
 
@@ -178,19 +163,30 @@ head(example_data)
 #?updateUnitConvTable
 updateUnitConvTable(data_crit, translation_wb, sheetname = "unitConvTable")
 
+save.image("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\ready_for_prep.RData")
+
+
+
+
+
 
 #14. Pre-assessment data prep (still some to do, but operational https://trello.com/c/OkvqshfE/3-final-data-cleanup)
+
 rm(list=ls(all=TRUE))
 load("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\ready_for_prep.RData")
-prepped_data=dataPrep(data_crit, translation_wb, unit_sheetname = "unitConvTable", startRow = 1)
+table(data_crit$AssessmentType)
+
+prepped_data=dataPrep(data=data_crit, translation_wb, split_agg_tds=TRUE, crit_wb="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\IR_uses_standards.xlsx", 
+						unit_sheetname = "unitConvTable", startRow_unit = 1, cf_formulas_sheetname="cf_formulas", startRow_formulas=1)
 attach(prepped_data)
-levels(conventionals$AsmntAggFun)=append(levels(conventionals$AsmntAggFun),"mean")
-conventionals=within(conventionals,{AsmntAggFun[AsmntAggFun=="Average"]="mean"}) #note - this was initially "Average" in the table, updated to 'mean'
+
+#######################
+#######################
+#Performing assessments
 
 #16. Assess conventionals:
 #16a. Count exceedances
 head(conventionals)
-conventionals$CriterionType[is.na(conventionals$CriterionType)]="max" #Note this was missing for some standards in the table when I built ready_for_prep.RData. Error built into countExceedances to check for NAs in this column.
 conv_exc=countExceedances(conventionals)
 conv_exc[conv_exc$IR_MLID=="UTAHDWQ_WQX-4960740",]
 
@@ -198,30 +194,46 @@ conv_exc[conv_exc$IR_MLID=="UTAHDWQ_WQX-4960740",]
 conv_assessed=assessExcCounts(conv_exc, min_n=10, max_exc_pct=10, max_exc_count_id=1)
 table(conv_assessed$IR_Cat)
 head(conv_assessed[conv_assessed$IR_Cat=="NS",])
-conv_assessed[conv_assessed$IR_MLID=="UTAHDWQ_WQX-4960740",]
-conv_assessed[conv_assessed$IR_MLID=="UTAHDWQ_WQX-5994740",]
+conv_assessed[conv_assessed$IR_MLID=="UTAHDWQ_WQX-4929010",]
 
 #17. Assess toxics (non-calculated criteria for now)
 #17a. Count exceedances
 head(toxics)
 toxics_exc=countExceedances(toxics)
-head(toxics_exc)
+toxics_exc[toxics_exc$IR_MLID=="UTAHDWQ_WQX-4929010",]
 
 #17b. Assess exceedances (toxics)
 toxics_assessed=assessExcCounts(toxics_exc, min_n=4, max_exc_count=1, max_exc_count_id=0)
 table(toxics_assessed$IR_Cat)
 head(toxics_assessed[toxics_assessed$IR_Cat=="NS",])
+toxics_assessed[toxics_assessed$IR_MLID=="UTAHDWQ_WQX-4929010",]
 
 
 
+#######################
+#######################
+#Roll Up
+
+site_use_param_assessments=rollUp(data=c("toxics_assessed","conv_assessed"), group_vars=c("ASSESS_ID","AU_NAME", "IR_MLID", "BeneficialUse","R3172ParameterName"), expand_uses=TRUE)
+
+site_use_param_assessments[site_use_param_assessments$R3172ParameterName=="Aluminum" & site_use_param_assessments$AssessCat=="NS",]
+toxics[toxics$IR_MLID=="UTAHDWQ_WQX-4929010" & toxics$R3172ParameterName=="Aluminum",]
+toxics[toxics$IR_MLID=="UTAHDWQ_WQX-4929100" & toxics$R3172ParameterName=="Aluminum",]
+
+
+au_use_param_assessments=rollUp(data=c("toxics_assessed","conv_assessed"), group_vars=c("ASSESS_ID","AU_NAME", "BeneficialUse","R3172ParameterName"), expand_uses=FALSE)
+
+head(au_use_param_assessments)
+au_use_param_assessments[au_use_param_assessments$ASSESS_ID=="UT16020101-030_00",]
+
+au_use_assessments=rollUp(data=c("toxics_assessed","conv_assessed"), group_vars=c("ASSESS_ID","AU_NAME", "BeneficialUse"), expand_uses=TRUE)
+au_use_assessments[au_use_assessments$ASSESS_ID=="UT16020101-030_00",]
+
+au_assessments=rollUp(data=c("toxics_assessed","conv_assessed"), group_vars=c("ASSESS_ID","AU_NAME"), expand_uses=FALSE)
+au_assessments[au_assessments$ASSESS_ID=="UT16020101-030_00",]
 
 
 
-
-
-
-
-	
 
 
 	
