@@ -14,76 +14,50 @@ downloadWQP(outfile_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_p
 	retrieve=c("narrowresult","activity","sites","detquantlim")
 	)
 
+##03. Read raw data into R, remove duplicates and check for orphans
+?readWQPFiles
+wqpdat <- readWQPFiles(file_select=FALSE,
+            narrowresult_file = "P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\narrowresult141001-160930.csv",
+            sites_file = "P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\sites141001-160930.csv",
+            activity_file = "P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\activity141001-160930.csv",
+            detquantlim_file = "P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\detquantlim141001-160930.csv",
+            orph_check = FALSE)
 
-##03. Auto-validate sites (Note, ignore "attribute variables are assumed to be spatially constant throughout all geometries" warning message - this is a spatial projection/distance measurement warning, but is OK. Warnings to be suppressed later.)
+##04. Auto-validate sites (Note, ignore "attribute variables are assumed to be spatially constant throughout all geometries" warning message - this is a spatial projection/distance measurement warning, but is OK. Warnings to be suppressed later.)
 ?autoValidateWQPsites
 autoValidateWQPsites(
-	sites_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\sites161001-180930.csv",
-	#sites_file="P:\\WQ\\Integrated Report\\Automation_Development\\elise\\demo\\01raw_data\\sites101001-180930_EH.csv",
+	sites_object=wqpdat$sites,
 	master_site_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\wqp_master_site_file.csv",
 	polygon_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\02site_validation\\polygons",
-	outfile_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables",
-	site_type_keep=c(
-		"Lake, Reservoir, Impoundment",
-		"Stream",
-		"Stream: Canal",
-		"Stream: Ditch",
-		"Spring",
-		"River/Stream",
-		"Lake",
-		"River/Stream Intermittent",
-		"River/Stream Perennial",
-		"Reservoir",
-		"Canal Transport",
-		"Canal Drainage",
-		"Canal Irrigation")
+	outfile_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables"
 	)
 
 
-##04. Site review application
+##05. Site review application
 runSiteValApp(
 	master_site_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\wqp_master_site_file.csv",
 	polygon_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\02site_validation\\polygons",
 	edit_log_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\lookup_tables\\edit_logs",
 	reasons_flat_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\rev_rej_reasons.csv")
 
-
-
-
-#03. Read in downloaded files and merge together (w/ example of potential option for selecting files interactively - choose.files() or choose.dir())
-setwd("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo")
-#narrowresult=read.csv(choose.files(getwd(), multi=F, caption="Select narrow result file..."))
-#activity=read.csv(choose.files(getwd(), multi=F, caption="Select activity file..."))
-narrowresult=read.csv("01raw_data\\narrowresult141001-160930.csv")
-activity=read.csv("01raw_data\\activity141001-160930.csv")
-
-dim(narrowresult)
-merged_results=merge(narrowresult,activity,all.x=T)
-dim(merged_results)
-
-#detquantlim=read.csv(choose.files(getwd(), multi=F, caption="Select detection/quantitation limit file..."))
-detquantlim=read.csv("01raw_data\\detquantlim141001-160930.csv")
-
-
-	
-#05. Update detection condition / limit name tables
+#06. Update detection condition / limit name tables
 #?updateDetCondLimTables
 translation_wb="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\ir_translation_workbook.xlsx"
-updateDetCondLimTables(results=merged_results, detquantlim=detquantlim, translation_wb=translation_wb)
+updateDetCondLimTables(results=wqpdat$merged_results, detquantlim=wqpdat$detquantlim, translation_wb=translation_wb)
 
 
-#06. Fill masked/censored values in results 
+#07. Fill masked/censored values in results 
 #?fillMaskedValues
-merged_results_filled=fillMaskedValues(results=merged_results, detquantlim=detquantlim, translation_wb=translation_wb,detsheetname="detLimitTypeTable", unitsheetname="unitConvTable",detstartRow=3, unitstartRow=1, unitstartCol=1, lql_fac=0.5, uql_fac=1)
+merged_results_filled=fillMaskedValues(results=wqpdat$merged_results, detquantlim=wqpdat$detquantlim, translation_wb=translation_wb,detsheetname="detLimitTypeTable", unitsheetname="unitConvTable",detstartRow=3, unitstartRow=1, unitstartCol=1, lql_fac=0.5, uql_fac=1)
 dim(merged_results_filled)
 	
 	
-#07. Update lab/activity & media tables (double check startRow & startCol args)
+#08. Update lab/activity & media tables (double check startRow & startCol args)
 #?updateLabActMediaTables
 updateLabActMediaTables(merged_results_filled, translation_wb=translation_wb, labNameActivityTable_startRow = 2)
 
 
-#08. Apply detection condition, lab/activity, media, & site review based screen tables (double check startRow args)
+#09. Apply detection condition, lab/activity, media, & site review based screen tables (double check startRow args)
 #note, may want to add argument(s) for columns to include or exclude - currently merges all columns in the screen table to data, renaming flag and comment columns as defined in args
 #Or reduce/reorganize merged result columns to a subset of desired columns following all data prep steps (just to reduce width of data for ease of use and clarity)
 #?applyScreenTable
@@ -103,7 +77,7 @@ head(merged_results_filled)
 dim(merged_results_filled)
 
 
-#09. Subset data (by rows) to desired flag types (keeping IR_Site_FLAG =="REVIEW" for now)
+#10. Subset data (by rows) to desired flag types (keeping IR_Site_FLAG =="REVIEW" for now)
 mrf_sub=merged_results_filled[which(
 	merged_results_filled$IR_DetCond_FLAG=="ACCEPT" &
 	merged_results_filled$IR_LabAct_FLAG=="ACCEPT" &
@@ -119,7 +93,7 @@ table(mrf_sub$IR_Site_FLAG)
 #table(mrf_sub$CharacteristicName)
 
 
-#10. Update & apply paramTransTable (generate from subsetted data)
+#11. Update & apply paramTransTable (generate from subsetted data)
 #?updateParamTrans
 updateParamTrans(data=mrf_sub, detquantlim=detquantlim,  translation_wb=translation_wb, paramFractionGroup_startCol = 2)
 
@@ -142,11 +116,11 @@ table(mrf_sub$R3172ParameterName)[table(mrf_sub$R3172ParameterName)>0]
 #head(mrf_sub)
 dim(mrf_sub)
 
-#11. Update & apply activityCommentTable (Not sure if we're going to fully screen comments yet, but can be updated/applied same as above, recommend subsetting based on parameter screens prior to updating)
+#12. Update & apply activityCommentTable (Not sure if we're going to fully screen comments yet, but can be updated/applied same as above, recommend subsetting based on parameter screens prior to updating)
 #?updateCommentTable
 	
 	
-#12. Assign criteria	
+#13. Assign criteria	
 #?assignCriteria
 data_crit=assignCriteria(mrf_sub, crit_wb="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\IR_uses_standards.xlsx",
 								  crit_sheetname="R317214DomesticRecAgCriteria_JV", ss_sheetname="R317214SSCriteria_JV", crit_startRow=1, ss_startRow=1, rm_nocrit=FALSE)
@@ -159,18 +133,13 @@ table(data_crit$R3172ParameterName)[table(data_crit$R3172ParameterName)>0]
 
 #write.csv(file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\example_data.csv",example_data, row.names=F)
 
-#13. Update unit conversion table
+#14. Update unit conversion table
 #?updateUnitConvTable
 updateUnitConvTable(data_crit, translation_wb, sheetname = "unitConvTable")
 
 save.image("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\ready_for_prep.RData")
 
-
-
-
-
-
-#14. Pre-assessment data prep (still some to do, but operational https://trello.com/c/OkvqshfE/3-final-data-cleanup)
+#15. Pre-assessment data prep (still some to do, but operational https://trello.com/c/OkvqshfE/3-final-data-cleanup)
 
 rm(list=ls(all=TRUE))
 load("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\ready_for_prep.RData")
