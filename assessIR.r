@@ -16,7 +16,7 @@ downloadWQP(outfile_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_p
 
 ##03. Read raw data into R, remove duplicates and check for orphans
 ?readWQPFiles
-wqpdat <- readWQPFiles(file_select=FALSE,
+wqpdat <- readWQPFiles(file_select=TRUE,
             narrowresult_file = "P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\narrowresult141001-160930.csv",
             sites_file = "P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\sites141001-160930.csv",
             activity_file = "P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\activity141001-160930.csv",
@@ -28,6 +28,7 @@ wqpdat <- readWQPFiles(file_select=FALSE,
 autoValidateWQPsites(
 	sites_object=wqpdat$sites,
 	master_site_file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\wqp_master_site_file.csv",
+	waterbody_type_file = "P:\\WQ\\Integrated Report\\Automation_Development\\elise\\demo\\02site_validation\\waterbody_type_domain_table.csv",
 	polygon_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\02site_validation\\polygons",
 	outfile_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables"
 	)
