@@ -7,6 +7,14 @@ devtools::install_github("ut-ir-tools/irTools")
 library(irTools)
 #devtools::document("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\irTools")
 
+
+##01a. Define function that converts factor columns to numeric values (e.g. ResultMeasureValue and DetectionLimitValue)
+facToNum=function(x){
+  if(class(x)=="factor"){result=as.numeric(levels(x))[x]
+  }else{result=x}
+  return(result)
+}
+
 ##02. Retrieve raw data from WQP (narrowresult query can be split apart then bound back together for big data pulls - remove narrowresult from retrieve argument in pullWQP()
 ?downloadWQP
 downloadWQP(outfile_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo2\\01raw_data",
