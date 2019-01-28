@@ -155,7 +155,7 @@ table(data_crit[data_crit$ActivityIdentifier=="UTAHDWQ_WQX-CUWJPRESDC041615-5913
 table(data_crit[data_crit$ActivityIdentifier=="UTAHDWQ_WQX-CUWJPRESDC041615-5913220-0416-Pr-F" & data_crit$CharacteristicName=="Depth, data-logger (ported)", "IR_Unit"], exclude=NULL)
 
 
-#14. Pre-assessment data prep (still some to do, but operational https://trello.com/c/OkvqshfE/3-final-data-cleanup)
+#15. Pre-assessment data prep (still some to do, but operational https://trello.com/c/OkvqshfE/3-final-data-cleanup)
 
 prepped_data=dataPrep(data=data_crit, translation_wb, split_agg_tds=TRUE, crit_wb="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\lookup_tables\\IR_uses_standards.xlsx",
 						unit_sheetname = "unitConvTable", startRow_unit = 1, cf_formulas_sheetname="cf_formulas", startRow_formulas=1)
@@ -202,6 +202,10 @@ toxics_assessed[toxics_assessed$IR_MLID=="UTAHDWQ_WQX-4929010",]
 assess_profs=assessLakeProfiles(lake_profiles)
 lake_profs_assessed=assess_profs$profile_asmnts_mlid_param
 
+#19 Assess e.coli
+
+assess_ecoli = assessEColi(prepped_data$ecoli)
+ecoli_assessed = assess_ecoli$rollup2site
 
 #######################
 #######################
