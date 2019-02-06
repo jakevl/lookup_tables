@@ -3,12 +3,13 @@
 #devtools::document("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\irTools")
 
 #01. Install UT autoIR package - ignore warnings re: namespace issues - will fix (eventually)
-devtools::install_github("ut-ir-tools/irTools", ref="lake-profiles")
+devtools::install_github("ut-ir-tools/irTools")
 library(irTools)
 #devtools::document("P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\irTools")
 
 
 ##01a. Define function that converts factor columns to numeric values (e.g. ResultMeasureValue and DetectionLimitValue)
+## Note - this is now also available via wqTools::facToNum
 facToNum=function(x){
   if(class(x)=="factor"){result=as.numeric(levels(x))[x]
   }else{result=x}
@@ -199,8 +200,9 @@ head(toxics_assessed[toxics_assessed$IR_Cat=="NS",])
 toxics_assessed[toxics_assessed$IR_MLID=="UTAHDWQ_WQX-4929010",]
 
 #18. Assess lake profiles
-assess_profs=assessLakeProfiles(lake_profiles)
-lake_profs_assessed=assess_profs$profile_asmnts_mlid_param
+assessed_profs=assessLakeProfiles(lake_profiles)
+lake_profs_assessed=assessed_profs$profile_asmnts_mlid_param
+save(file="F:\\Shiny\\lakeDashBoard\\assessed_profs.rdata",assessed_profs)
 
 #19 Assess e.coli
 

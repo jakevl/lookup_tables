@@ -1,17 +1,17 @@
 "MonitoringLocationTypeName","IR_FLAG","InData"
-"Canal Drainage","ACCEPT","Y"
-"Canal Irrigation","ACCEPT","Y"
-"Canal Transport","ACCEPT","Y"
+"Canal Drainage","ACCEPT",NA
+"Canal Irrigation","ACCEPT",NA
+"Canal Transport","ACCEPT",NA
 "Lake","ACCEPT","Y"
-"Lake, Reservoir, Impoundment","ACCEPT","Y"
-"Other-Surface Water","ACCEPT","Y"
-"Pond-Stormwater","REJECT","Y"
-"Reservoir","ACCEPT","Y"
+"Lake, Reservoir, Impoundment","ACCEPT",NA
+"Other-Surface Water","ACCEPT",NA
+"Pond-Stormwater","REJECT",NA
+"Reservoir","ACCEPT",NA
 "River/Stream","ACCEPT","Y"
-"River/Stream Intermittent","ACCEPT","Y"
-"River/Stream Perennial","ACCEPT","Y"
-"Seep","REJECT","Y"
-"Spring","ACCEPT","Y"
-"Stream","ACCEPT","Y"
-"Stream: Canal","ACCEPT","Y"
-"Stream: Ditch","REJECT","Y"
+"River/Stream Intermittent","ACCEPT",NA
+"River/Stream Perennial","ACCEPT",NA
+"Seep","REJECT",NA
+"Spring","ACCEPT",NA
+"Stream","ACCEPT",NA
+"Stream: Canal","ACCEPT",NA
+"Stream: Ditch","REJECT",NA
