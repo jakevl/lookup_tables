@@ -209,6 +209,11 @@ lake_profs_assessed=assessed_profs$profile_asmnts_mlid_param
 assess_ecoli = assessEColi(prepped_data$ecoli)
 ecoli_assessed = assess_ecoli$rollup2site
 
+#20 Assess HFDO NOTE: NEED TO REVIEW ONCE WE KNOW WHAT THE DATA LOOK LIKE
+# Test dataset
+load("P:\\WQ\\Integrated Report\\Automation_Development\\elise\\hfdo_demo\\hfdo_data.Rdata")
+assess_hfdo = assessHFDO(hfdo_data, min_n = 10)
+
 #######################
 #######################
 #Roll Up
