@@ -25,7 +25,7 @@ downloadWQP(outfile_path="P:\\WQ\\Integrated Report\\Automation_Development\\R_p
 
 ##03. Read raw data into R, remove duplicates and check for orphans
 ?readWQPFiles
-wqpdat <- readWQPFiles(file_select=TRUE,
+wqpdat <- readWQPFiles(file_select=FALSE,
             narrowresult_file = "P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\narrowresult141001-160930.csv",
             sites_file = "P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\sites141001-160930.csv",
             activity_file = "P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\01raw_data\\activity141001-160930.csv",
@@ -65,8 +65,6 @@ table(merged_results_filled[merged_results_filled$ActivityIdentifier=="UTAHDWQ_W
 table(merged_results_filled[merged_results_filled$ActivityIdentifier=="UTAHDWQ_WQX-CUWJPRESDC041615-5913220-0416-Pr-F" & merged_results_filled$CharacteristicName=="Depth, data-logger (ported)", "IR_Unit"], exclude=NULL)
 
 
-
-
 #08. Update lab/activity & media tables (double check startRow & startCol args)
 #?updateLabActMediaTables
 updateLabActMediaTables(merged_results_filled, translation_wb=translation_wb, labNameActivityTable_startRow = 2)
@@ -104,16 +102,17 @@ table(mrf_sub$IR_DetCond_FLAG)
 table(mrf_sub$IR_LabAct_FLAG)
 table(mrf_sub$IR_Media_FLAG)
 table(mrf_sub$IR_Site_FLAG)
+table(mrf_sub$CharacteristicName)[table(mrf_sub$CharacteristicName)>0]
 
-#table(mrf_sub$CharacteristicName)
+#table(droplevels(mrf_sub$CharacteristicName))
 
 
 #11. Update & apply paramTransTable (generate from subsetted data)
 #?updateParamTrans
 updateParamTrans(data=mrf_sub, detquantlim=detquantlim,  translation_wb=translation_wb, paramFractionGroup_startCol = 2)
 
-
 mrf_sub_bk=mrf_sub
+#mrf_sub=mrf_sub_bk
 #table(mrf_sub_bk$CharacteristicName)
 
 mrf_sub=applyScreenTable(mrf_sub,translation_wb=translation_wb,
@@ -165,7 +164,8 @@ attach(prepped_data)
 table(lake_profiles$R3172ParameterName)[table(lake_profiles$R3172ParameterName)>0]
 table(lake_profiles[lake_profiles$ActivityIdentifier=="UTAHDWQ_WQX-CUWJPRESDC041615-5913220-0416-Pr-F" & lake_profiles$CharacteristicName=="Depth, data-logger (ported)", "IR_Unit"], exclude=NULL)
 
-save(file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\prepped_data.RData", prepped_data)
+#save(file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\prepped_data.RData", prepped_data)
+#save(file="P:\\WQ\\Integrated Report\\Automation_Development\\R_package\\demo\\accepted_data.RData", accepted_data)
 
 
 #######################
@@ -202,7 +202,7 @@ toxics_assessed[toxics_assessed$IR_MLID=="UTAHDWQ_WQX-4929010",]
 #18. Assess lake profiles
 assessed_profs=assessLakeProfiles(lake_profiles)
 lake_profs_assessed=assessed_profs$profile_asmnts_mlid_param
-save(file="F:\\Shiny\\lakeDashBoard\\assessed_profs.rdata",assessed_profs)
+#save(file="F:\\Shiny\\lakeDashBoard\\assessed_profs.rdata",assessed_profs)
 
 #19 Assess e.coli
 
